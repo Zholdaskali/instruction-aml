@@ -12,3 +12,14 @@ POST 			/api/v1/instructions												Отправить указание					
 GET 			/api/v1/notifications												Получить свои уведомления					INVESTIGATOR
 GET 			/api/v1/notifications/unread-count					Получить счётчик							INVESTIGATOR
 PATCH 		/api/v1/notifications/{id}/read							Отметить своё уведомление прочитанным INVESTIGATOR
+
+
+docker exec -it instructions-postgres psql -U instructions_user -d instructions_db
+
+TRUNCATE TABLE
+    t_notifications,
+    t_instructions,
+    t_case_participants,
+    t_case_files,
+    t_app_users
+RESTART IDENTITY;

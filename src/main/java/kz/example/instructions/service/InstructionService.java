@@ -31,28 +31,29 @@ import kz.example.instructions.repository.UserRepository;
 @Service
 public class InstructionService {
     
-    private final UserRepository users;
-    private final CaseRepository cases;
-    private final CaseParticipantRepository participants;
-    private final InstructionRepository instructions;
-    private final NotificationRepository notifications;
+    private final UserRepository usersRepo;
+    private final CaseRepository casesRepo;
+    private final CaseParticipantRepository participantsRepo;
+    private final InstructionRepository instructionsRepo;
+    private final NotificationRepository notificationsRepo;
 
-    public InstructionService(UserRepository users, CaseRepository cases,
-                              CaseParticipantRepository participants,
-                              InstructionRepository instructions,
-                              NotificationRepository notifications) {
-        this.users = users;
-        this.cases = cases;
-        this.participants = participants;
-        this.instructions = instructions;
-        this.notifications = notifications;
+    public InstructionService(UserRepository usersRepo, CaseRepository casesRepo,
+                              CaseParticipantRepository participantsRepo,
+                              InstructionRepository instructionsRepo,
+                              NotificationRepository notificationsRepo) {
+        this.usersRepo = usersRepo;
+        this.casesRepo = casesRepo;
+        this.participantsRepo = participantsRepo;
+        this.instructionsRepo = instructionsRepo;
+        this.notificationsRepo = notificationsRepo;
     }
 
+    // 1
     @Transactional(readOnly = true)
     public List<CaseResponse> getCases(String username) {
         AppUser supervisor = requireUser(username);
         requireRole(supervisor, Role.SUPERVISOR);
-        return cases.findAllByRegionOrderByCaseNumber(supervisor.getRegion()).stream()
+        return casesRepo.findAllByRegionOrderByCaseNumber(supervisor.getRegion()).stream()
                 .map(c -> new CaseResponse(c.getId(), c.getCaseNumber(), c.getRegion()))
                 .toList();
     }
@@ -61,40 +62,41 @@ public class InstructionService {
     public List<RecipientResponse> getRecipients(UUID caseId, String username) {
         AppUser supervisor = requireUser(username);
         requireRole(supervisor, Role.SUPERVISOR);
-        CaseFile caseFile = cases.findByIdAndRegion(caseId, supervisor.getRegion())
+        CaseFile caseFile = casesRepo.findByIdAndRegion(caseId, supervisor.getRegion())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Case not found in your region"));
-        return participants.findEligibleRecipients(caseFile.getId(), supervisor.getRegion()).stream()
+        return participantsRepo.findEligibleRecipients(caseFile.getId(), supervisor.getRegion()).stream()
                 .map(u -> new RecipientResponse(u.getId(), u.getUsername(), u.getRegion()))
                 .toList();
     }
 
+    // 2
     @Transactional
     public CreateInstructionResponse createInstruction(CreateInstructionRequest request, String username) {
         AppUser sender = requireUser(username);
         requireRole(sender, Role.SUPERVISOR);
 
-        CaseFile caseFile = cases.findByIdAndRegion(request.caseId(), sender.getRegion())
+        CaseFile caseFile = casesRepo.findByIdAndRegion(request.caseId(), sender.getRegion())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.FORBIDDEN, "Case is outside your region"));
 
-        AppUser recipient = users.findById(request.recipientId())
+        AppUser recipient = usersRepo.findById(request.recipientId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Recipient not found"));
 
         if (recipient.getRole() != Role.INVESTIGATOR
                 || !recipient.getRegion().equals(sender.getRegion())
-                || !participants.existsByCaseFileAndUser(caseFile, recipient)) {
+                || !participantsRepo.existsByCaseFileAndUser(caseFile, recipient)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN,
                     "Recipient must be an investigator participating in this case and region");
         }
 
-        Instruction instruction = instructions.save(new Instruction(caseFile, sender, recipient, request.text().trim()));
-        notifications.save(new Notification(instruction, recipient));
+        Instruction instruction = instructionsRepo.save(new Instruction(caseFile, sender, recipient, request.text().trim()));
+        notificationsRepo.save(new Notification(instruction, recipient));
         return new CreateInstructionResponse(instruction.getId());
     }
 
     @Transactional(readOnly = true)
     public Slice<NotificationResponse> getNotifications(String username, Pageable pageable) {
         requireRole(requireUser(username), Role.INVESTIGATOR);
-        return notifications.findAllByRecipient_UsernameOrderByCreatedAtDesc(username, pageable)
+        return notificationsRepo.findAllByRecipient_UsernameOrderByCreatedAtDesc(username, pageable)
                 .map(n -> new NotificationResponse(
                         n.getId(),
                         n.getInstruction().getCaseFile().getCaseNumber(),
@@ -109,21 +111,24 @@ public class InstructionService {
     public UnreadCountResponse getUnreadCount(String username) {
         requireRole(requireUser(username), Role.INVESTIGATOR);
         return new UnreadCountResponse(
-                notifications.countByRecipient_UsernameAndReadAtIsNull(username));
+                notificationsRepo.countByRecipient_UsernameAndReadAtIsNull(username));
     }
 
     @Transactional
     public ReadNotificationResponse markRead(UUID notificationId, String username) {
         requireRole(requireUser(username), Role.INVESTIGATOR);
-        Notification notification = notifications.findByIdAndRecipient_Username(notificationId, username)
+        Notification notification = notificationsRepo.findByIdAndRecipient_Username(notificationId, username)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Notification not found"));
         notification.markRead();
-        notifications.save(notification);
+        notificationsRepo.save(notification);
         return new ReadNotificationResponse(notification.getId(), notification.getReadAt());
     }
 
+
+
+    
     private AppUser requireUser(String username) {
-        return users.findByUsername(username)
+        return usersRepo.findByUsername(username)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unknown user"));
     }
 
