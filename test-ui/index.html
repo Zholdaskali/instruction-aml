@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="ru">
+	<head>
+		<meta charset="UTF-8" />
+		<meta
+			name="viewport"
+			content="width=device-width, initial-scale=1.0"
+		/>
+		<title>Instructions Service — Test UI</title>
+		<link
+			rel="stylesheet"
+			href="style.css"
+		/>
+	</head>
+	<body>
+		<div class="container">
+			<header>
+				<div>
+					<h1>Instructions Service</h1>
+					<p>Панель тестирования REST API</p>
+				</div>
+				<span
+					id="connectionStatus"
+					class="status"
+				>
+					Не подключено
+				</span>
+			</header>
+
+			<section
+				class="panel"
+				id="authPanel"
+			>
+				<h2>Авторизация</h2>
+				<div class="form-grid">
+					<label>
+						Логин
+						<input
+							id="username"
+							value="supervisor-north"
+							autocomplete="username"
+						/>
+					</label>
+					<label>
+						Пароль
+						<input
+							id="password"
+							type="password"
+							value="supervisor123"
+							autocomplete="current-password"
+						/>
+					</label>
+				</div>
+				<div class="actions">
+					<button id="loginBtn">Подключиться</button>
+					<button
+						id="logoutBtn"
+						class="secondary"
+					>
+						Выйти
+					</button>
+				</div>
+				<p
+					id="authMessage"
+					class="message"
+				></p>
+			</section>
+
+			<main>
+				<section class="panel">
+					<div class="section-heading">
+						<h2>Дела</h2>
+						<button id="loadCasesBtn">Загрузить дела</button>
+					</div>
+					<div
+						id="cases"
+						class="items empty"
+					>
+						Сначала авторизуйтесь
+					</div>
+
+					<div
+						id="recipientSection"
+						hidden
+					>
+						<h3>Адресаты указания</h3>
+						<p
+							id="selectedCase"
+							class="muted"
+						></p>
+						<div
+							id="recipients"
+							class="items empty"
+						>
+							Выберите дело
+						</div>
+					</div>
+				</section>
+
+				<section class="panel">
+					<h2>Отправить указание</h2>
+					<form id="instructionForm">
+						<label>
+							ID дела
+							<input
+								id="caseId"
+								required
+								placeholder="UUID дела"
+							/>
+						</label>
+						<label>
+							ID получателя
+							<input
+								id="recipientId"
+								required
+								placeholder="UUID пользователя"
+							/>
+						</label>
+						<label>
+							*Текст указания (непстой)
+							<textarea
+								id="instructionText"
+								required
+								rows="4"
+								placeholder="Введите текст указания"
+							></textarea>
+						</label>
+						<button type="submit">Отправить указание</button>
+					</form>
+					<pre
+						id="instructionResult"
+						class="result"
+					>
+Результат появится здесь</pre
+					>
+				</section>
+
+				<section class="panel">
+					<div class="section-heading">
+						<h2>Уведомления</h2>
+						<button id="loadNotificationsBtn">Обновить</button>
+					</div>
+
+					<div class="counter">
+						Непрочитанных:
+						<strong id="unreadCount">—</strong>
+					</div>
+
+					<div
+						id="notifications"
+						class="items empty"
+					>
+						Уведомления не загружены
+					</div>
+
+					<div class="pagination">
+						<button
+							id="prevPageBtn"
+							class="secondary"
+						>
+							Назад
+						</button>
+						<span id="pageInfo">Страница 1</span>
+						<button
+							id="nextPageBtn"
+							class="secondary"
+						>
+							Вперёд
+						</button>
+					</div>
+				</section>
+			</main>
+
+			<section class="panel">
+				<h2>Ответ API / ошибки</h2>
+				<pre
+					id="apiLog"
+					class="result"
+				>
+Здесь будут отображаться ответы сервера</pre
+				>
+			</section>
+		</div>
+
+		<script src="app.js"></script>
+	</body>
+</html>

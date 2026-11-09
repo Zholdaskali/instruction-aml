@@ -1,0 +1,14 @@
+Логин							Пароль				Роль					Регион
+supervisor-north	supervisor123	SUPERVISOR		NORTH
+anton							anton123			INVESTIGATOR	NORTH
+vera							vera123				INVESTIGATOR	NORTH
+supervisor-south	south123			SUPERVISOR		SOUTH
+
+
+Endpoint	Назначение																	Пользователь
+GET 			/api/v1/cases																Получить дела своего региона		SUPERVISOR
+GET 			/api/v1/cases/{id}/instruction-recipients		Получить допустимых адресатов		SUPERVISOR
+POST 			/api/v1/instructions												Отправить указание							SUPERVISOR
+GET 			/api/v1/notifications												Получить свои уведомления					INVESTIGATOR
+GET 			/api/v1/notifications/unread-count					Получить счётчик							INVESTIGATOR
+PATCH 		/api/v1/notifications/{id}/read							Отметить своё уведомление прочитанным INVESTIGATOR

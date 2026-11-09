@@ -1,0 +1,21 @@
+services:
+  postgres:
+    image: postgres:17
+    container_name: instructions-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: instructions_db
+      POSTGRES_USER: instructions_user
+      POSTGRES_PASSWORD: instructions_password
+    ports:
+      - "5433:5432"
+    volumes:
+      - instructions_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U instructions_user -d instructions_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  instructions_postgres_data:
