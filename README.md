@@ -12,7 +12,7 @@ REST-сервис указаний по делу и уведомлений.
 docker compose up -d
 mvn spring-boot:run
 
-cd testui
+cd test-ui
 python3 -m http.server 5500 или просто питон на винде
 ```
 
@@ -38,7 +38,7 @@ python3 -m http.server 5500 или просто питон на винде
 ### 1. Список дел руководителя
 
 ```bash
-curl -u supervisor-north:supervisor123 http://localhost:8080/cases
+curl -u supervisor-north:supervisor123 http://localhost:8080/api/v1/cases
 ```
 
 ### 2. Получатели по делу
@@ -47,7 +47,7 @@ curl -u supervisor-north:supervisor123 http://localhost:8080/cases
 
 ```bash
 curl -u supervisor-north:supervisor123 \
-  http://localhost:8080/cases/CASE_UUID/instruction-recipients
+  http://localhost:8080/api/v1/cases/CASE_UUID/instruction-recipients
 ```
 
 ### 3. Отправить указание
@@ -58,7 +58,7 @@ curl -u supervisor-north:supervisor123 \
 curl -i -u supervisor-north:supervisor123 \
   -H 'Content-Type: application/json' \
   -d '{"caseId":"CASE_UUID","recipientId":"ANTON_UUID","text":"Проверьте наличие акта № 7"}' \
-  http://localhost:8080/instructions
+  http://localhost:8080/api/v1/instructions
 ```
 
 Ожидаемый HTTP-статус: `201 Created`.
@@ -66,15 +66,15 @@ curl -i -u supervisor-north:supervisor123 \
 ### 4. Уведомления Антона
 
 ```bash
-curl -u anton:anton123 'http://localhost:8080/notifications?page=0&size=20'
-curl -u anton:anton123 http://localhost:8080/notifications/unread-count
+curl -u anton:anton123 'http://localhost:8080/api/v1/notifications?page=0&size=20'
+curl -u anton:anton123 http://localhost:8080/api/v1/notifications/unread-count
 ```
 
 ### 5. Прочитать уведомление
 
 ```bash
 curl -i -X PATCH -u anton:anton123 \
-  http://localhost:8080/notifications/NOTIFICATION_UUID/read
+  http://localhost:8080/api/v1/notifications/NOTIFICATION_UUID/read
 ```
 
 Повторный PATCH не меняет первоначальный `readAt`.
