@@ -1,15 +1,19 @@
 # Instructions Service
 
-Учебный REST-сервис указаний по делу и уведомлений. Java 17, Spring Boot 3.5,
-PostgreSQL.
+REST-сервис указаний по делу и уведомлений.
+
+стек Java 17, Spring Boot 3.5, PostgreSQL. html, css, js
 
 ## Запуск
 
-Требуются JDK 17+ и Docker.
+Требуются JDK 17+ и Docker python для клиента.
 
 ```bash
 docker compose up -d
 mvn spring-boot:run
+
+cd testui
+python3 -m http.server 5500 или просто питон на винде
 ```
 
 Если Maven Wrapper отсутствует, используйте `mvn spring-boot:run`.
